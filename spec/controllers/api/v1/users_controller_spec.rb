@@ -1,8 +1,7 @@
 require 'spec_helper'
 
 describe Api::V1::UsersController do
-  before(:each) { request.headers['Accept'] = "application/vnd.marketplace.v1"}
-
+  
   describe "GET#show" do
     before(:each) do
       @user = FactoryGirl.create :user
@@ -90,7 +89,7 @@ describe Api::V1::UsersController do
     end
   end
 
-  describe "when " do
+  describe "when user destroy " do
     before(:each) do
       @user = FactoryGirl.create :user
       delete :destroy, { id: @user.id}, format: :json
