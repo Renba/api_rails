@@ -24,10 +24,9 @@ RSpec.configure do |config|
   # config.mock_with :mocha
   # config.mock_with :flexmock
   # config.mock_with :rr
-  config.include Devise::TestHelpers, type: :controller
   config.include Request::JsonHelpers, type: :controller
-  
-  config.include Request::HeadersHelpers, :type => :controller
+  config.include Request::HeadersHelpers, type: :controller
+  config.include Devise::TestHelpers, type: :controller
   config.before(:each, type: :controller) do
       include_default_accept_headers
   end
