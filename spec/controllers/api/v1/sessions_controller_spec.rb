@@ -43,6 +43,6 @@ describe Api::V1::SessionsController do
       delete :destroy, id: @user.auth_token
     end
 
-    it { should respond_with 204 } 
+    it { should respond_with 204 }
   end
 end
