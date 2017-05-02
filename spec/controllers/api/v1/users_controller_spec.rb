@@ -5,11 +5,11 @@ describe Api::V1::UsersController do
   describe "GET#show" do
     before(:each) do
       @user = FactoryGirl.create :user
-      get :show, id: @user.id, format: :json
+      get :show, id: @user.id
     end
 
     it "returns the information about a reporter on a hash" do
-      user_response = json_response
+      user_response = json_response[:user]
       expect(user_response[:email]).to eql @user.email
     end
 
@@ -20,11 +20,11 @@ describe Api::V1::UsersController do
     context "when is successfuly created" do
       before(:each) do
         @user_attributes = FactoryGirl.attributes_for :user
-        post :create, { user: @user_attributes }, format: :json
+        post :create, { user: @user_attributes }
       end
 
       it "renders the json representation for the user record just created" do
-        user_response = json_response
+        user_response = json_response[:user]
         expect(user_response[:email]).to eql @user_attributes[:email]
       end
 
@@ -35,7 +35,7 @@ describe Api::V1::UsersController do
       before(:each) do
         @invalid_user_attributes = { password: '12345678',
                                      password_confirmaiton: '12345678'}
-        post :create, { user: @invalid_user_attributes}, format: :json
+        post :create, { user: @invalid_user_attributes}
       end
 
       it "renders an errors json" do
@@ -53,28 +53,28 @@ describe Api::V1::UsersController do
   end
 
   describe "PUT/PATCH #update" do
+    before(:each) do
+      @user = FactoryGirl.create :user
+      api_authorization_header @user.auth_token
+    end
     context "when is successfuly updated" do
       before(:each) do
-        @user = FactoryGirl.create :user
-        api_authorization_header @user.auth_token
         patch :update, {id: @user.id,
-                        user:{ email: "newemail@example.com"} }, format: :json
+                        user:{ email: "newemail@example.com"} }
       end
 
       it "render the json representation for the updated user" do
-        user_response = json_response
+        user_response = json_response[:user]
         expect(user_response[:email]).to eql "newemail@example.com"
       end
 
       it {should respond_with 200}
     end
 
-    context "when is not created" do
+    context "when is not updated" do
       before(:each) do
-        @user = FactoryGirl.create :user
-        api_authorization_header @user.auth_token
         patch :update, { id: @user.id,
-                        user:{ email: "badcorreo" } }, format: :json
+                        user:{ email: "badcorreo" } }
       end
 
       it "render and errors json" do
@@ -95,7 +95,7 @@ describe Api::V1::UsersController do
     before(:each) do
       @user = FactoryGirl.create :user
       api_authorization_header @user.auth_token
-      delete :destroy, { id: @user.id}, format: :json
+      delete :destroy, { id: @user.id}
     end
 
     it{ should respond_with 204 }
