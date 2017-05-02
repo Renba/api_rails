@@ -30,4 +30,98 @@ describe Api::V1::ProductsController do
     it { should respond_with 200 }
   end
 
+  describe "POST #create" do
+
+    context "when is successfuly created do" do
+      before(:each) do
+        user = FactoryGirl.create :user
+        @product_attributes = FactoryGirl.attributes_for :product
+        api_authorization_header user.auth_token
+        post :create, { user_id: user.id, product: @product_attributes }
+      end
+
+      it "renders the json representation for the product record just created" do
+        products_response = json_response
+        expect(products_response[:title]).to eql @product_attributes[:title]
+      end
+
+      it { should respond_with 201 }
+    end
+
+    context "when is not created" do
+      before(:each) do
+        user = FactoryGirl.create :user
+        @invalid_product_attributes = { title: 'TV', price: '20 pesos'}
+        api_authorization_header user.auth_token
+        post :create, { user_id: user.id, product: @invalid_product_attributes }
+      end
+
+      it "renders and error json" do
+        products_response = json_response
+        expect(products_response).to have_key(:errors)
+      end
+
+      it "renders the json errors on whye the user could not be created" do
+        products_response = json_response
+        expect(products_response[:errors][:price]).to include "is not a number"
+      end
+
+      it { should respond_with 422 }
+
+    end
+  end
+
+  describe "PUTS #update" do
+    before(:each) do
+      @user = FactoryGirl.create :user
+      @product = FactoryGirl.create :product, user: @user
+      api_authorization_header @user.auth_token
+    end
+
+    context "when is successfuly updated" do
+      before(:each) do
+        patch :update, { user_id: @user.id, id: @product.id,
+                         product: { title: 'tv 3D'} }
+      end
+
+      it "render the json representation for the updated user" do
+        product_response = json_response
+        expect(product_response[:title]).to eql 'tv 3D'
+      end
+
+      it { should respond_with 200 }
+    end
+
+    context "when is not updated" do
+      before(:each) do
+        patch :update, { user_id: @user.id, id: @product.id,
+                         product: { price: 'tv 3D'}}
+      end
+
+      it "renders an error json" do
+        product_response = json_response
+        expect(product_response).to have_key(:errors)
+      end
+
+      it " renders the json errors on whye the user couldn't be updated" do
+        product_response = json_response
+        expect(product_response[:errors][:price]).to include "is not a number"
+      end
+
+      it { should respond_with 422 }
+
+    end
+  end
+
+  describe "DELETE #destroy" do
+    before(:each) do
+      @user = FactoryGirl.create :user
+      @product = FactoryGirl.create :product, user: @user
+      api_authorization_header @user.auth_token
+      delete :destroy, { user_id: @user.id, id: @product.id }
+    end
+
+    it { should respond_with 204 }
+  end
+
 end
