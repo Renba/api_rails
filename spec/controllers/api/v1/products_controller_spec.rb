@@ -22,24 +22,43 @@ describe Api::V1::ProductsController do
   end
 
   describe "GET #index" do
-    before(:each) do
-      4.times { FactoryGirl.create :product }
-      get :index
+
+    context "when is not receiving any product_ids parameter" do
+      before(:each) do
+        4.times { FactoryGirl.create :product }
+        get :index
+      end
+
+      it "returns 4 records from the database" do
+        products_response = json_response[:products]
+        expect(products_response).to have(4).items
+      end
+
+      it "returns the user object into each product" do
+        products_response = json_response[:products]
+        products_response.each do |product_response|
+          expect(product_response[:user]).to be_present
+        end
+      end
+
+      it { should respond_with 200 }
     end
 
-    it "returns 4 records from the database" do
-      products_response = json_response[:products]
-      expect(products_response).to have(4).item
-    end
+    context "when product_ids parameter is sent" do
+      before(:each) do
+        @user = FactoryGirl.create :user
+        3.times { FactoryGirl.create :product, user: @user }
+        get :index, product_ids: @user.product_ids
+      end
 
-    it "returns the user object into each product" do
-      products_response = json_response[:products]
-      products_response.each do |product_response|
-        expect(product_response[:user]).to be_present
+      it "return just the products that belong to the user" do
+        products_response = json_response[:products]
+        products_response.each do |product_response|
+          expect(product_response[:user][:email]).to eql @user.email
+        end
       end
     end
 
-    it { should respond_with 200 }
   end
 
   describe "POST #create" do
