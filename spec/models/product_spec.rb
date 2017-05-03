@@ -19,6 +19,9 @@ describe Product do
 
   it { should belong_to :user }
 
+  it { should have_many(:placements) }
+  it { should have_many(:orders).through(:placements) }
+
   describe ".filter_by_title" do
     before(:each) do
       @product1 = FactoryGirl.create :product, title: "A plasma TV"
