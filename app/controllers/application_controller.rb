@@ -4,4 +4,16 @@ class ApplicationController < ActionController::Base
   protect_from_forgery with: :null_session
 
   include Authenticable
+
+  protected
+
+  def pagination(pagination_array, per_page)
+    { pagination:
+      {
+        per_page: per_page.to_i,
+        total_pages: pagination_array.total_pages,
+        total_objects: pagination_array.total_count
+      }
+    }
+  end
 end
