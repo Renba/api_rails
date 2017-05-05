@@ -16,7 +16,8 @@ class Api::V1::OrdersController < ApplicationController
     order.build_placements_with_product_ids_and_quantities(params[:order][:product_ids_and_quantities])
 
     if order.save
-      OrderMailer.send_confirmation(order).deliver
+      order.reload
+      OrderMailer.delay.send_confirmation(order) #this is the line
       render json: order, status: 201, location: [:api, current_user, order]
     else
       render json: { errors: order.errors }, status: 422
