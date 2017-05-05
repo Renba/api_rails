@@ -11,7 +11,8 @@ class Api::V1::OrdersController < ApplicationController
   end
 
   def create
-    order = current_user.orders.build(order_params)
+    order = current_user.orders.build
+    order.build_placements_with_product_ids_and_quantities(params[:order][:product_ids_and_quantities])
 
     if order.save
       OrderMailer.send_confirmation(order).deliver
